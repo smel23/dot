@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trouvez votre table</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --white:#ffffff;
+    --offwhite:#f5f7fc;
+    --royal:#0047ab;
+    --royal-dark:#00296b;
+    --royal-deep:#001845;
+    --gold:#c9a227;
+    --gold-bright:#e6c25a;
+    --ink:#0f1f45;
+    --muted:#5c6a8f;
+    --line:#e2e7f5;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--white);
+    color:var(--ink);
+    font-family:'Manrope',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:0 0 0;}
+  .content{padding:0 24px 90px;}
+
+  /* ---------- HERO (image de fond) ---------- */
+  .hero{
+    position:relative;
+    min-height:440px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-end;
+    text-align:center;
+    padding:60px 24px 46px;
+    background-image:
+      linear-gradient(180deg, rgba(0,24,69,0.15) 0%, rgba(0,24,69,0.55) 60%, rgba(0,24,69,0.88) 100%),
+      url('DIV1.jpeg');
+    background-size:cover;
+    background-position:center 15%;
+    border-bottom:4px solid var(--gold);
+  }
+  .hero .eyebrow{color:var(--gold-bright);}
+  .hero h1{color:var(--white);}
+  .hero .subhead{color:#dbe3f7;}
+
+  .eyebrow{
+    font-family:'Manrope',sans-serif;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    font-size:11px;
+    text-align:center;
+    margin:0 0 18px;
+    opacity:.95;
+    color:var(--gold);
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-style:italic;
+    font-size:clamp(2.2rem, 6vw, 3.6rem);
+    text-align:center;
+    margin:0 0 10px;
+    color:var(--royal);
+    letter-spacing:.01em;
+  }
+  .subhead{
+    text-align:center;
+    color:var(--muted);
+    font-size:15px;
+    max-width:460px;
+    margin:0 auto;
+    line-height:1.6;
+  }
+  .ribbon-divider{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    margin:40px auto 40px;
+    max-width:280px;
+  }
+  .ribbon-divider .line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+  .ribbon-divider .diamond{width:6px;height:6px;background:var(--gold);transform:rotate(45deg);}
+
+  /* ---------- SEARCH ---------- */
+  .search-panel{
+    background:var(--offwhite);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:8px;
+    box-shadow:0 20px 45px -25px rgba(0,40,110,0.35);
+  }
+  .search-box{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--white);
+    border:1px solid rgba(0,71,171,0.25);
+    border-radius:12px;
+    padding:16px 20px;
+  }
+  .search-box svg{flex:none;opacity:.8;}
+  .search-box input{
+    flex:1;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--ink);
+    font-family:'Manrope',sans-serif;
+    font-size:17px;
+    font-weight:500;
+  }
+  .search-box input::placeholder{color:var(--muted);font-weight:400;}
+  .hint{
+    text-align:center;
+    font-size:12px;
+    color:var(--muted);
+    margin-top:14px;
+    letter-spacing:.02em;
+  }
+
+  /* ---------- RESULTS ---------- */
+  #results{margin-top:28px;}
+  .empty-state{
+    text-align:center;
+    color:var(--muted);
+    font-size:14px;
+    padding:30px 10px 6px;
+  }
+  .no-match{
+    text-align:center;
+    padding:34px 20px;
+    border:1px dashed rgba(0,71,171,0.3);
+    border-radius:14px;
+    color:var(--muted);
+    font-size:14px;
+    margin-top:8px;
+    background:var(--offwhite);
+  }
+  .no-match strong{display:block;color:var(--royal);font-family:'Fraunces',serif;font-style:italic;font-weight:500;font-size:19px;margin-bottom:6px;}
+
+  .place-card{
+    position:relative;
+    background:var(--white);
+    color:var(--ink);
+    border-radius:14px;
+    padding:26px 26px 22px;
+    margin-top:14px;
+    overflow:hidden;
+    border:1px solid var(--line);
+    box-shadow:0 18px 40px -28px rgba(0,40,110,0.45);
+    animation:reveal .45s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes reveal{
+    from{opacity:0; transform:translateY(10px) scale(.98);}
+    to{opacity:1; transform:translateY(0) scale(1);}
+  }
+  .place-card::before{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0;
+    height:5px;
+    background:linear-gradient(90deg,var(--royal),var(--gold));
+  }
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+  }
+  .card-side{
+    font-size:10.5px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--gold);
+  }
+  .card-name{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:22px;
+    margin:6px 0 4px;
+    color:var(--royal);
+  }
+  .card-phone{
+    font-size:13.5px;
+    color:var(--muted);
+    font-variant-numeric:tabular-nums;
+  }
+  .card-table{
+    flex:none;
+    text-align:center;
+    background:var(--royal);
+    color:var(--white);
+    border-radius:12px;
+    padding:12px 18px;
+    min-width:92px;
+  }
+  .card-table .n{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:26px;
+    line-height:1;
+    display:block;
+    color:var(--gold-bright);
+  }
+  .card-table .l{
+    font-size:9.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:#c9d4ef;
+    display:block;
+    margin-top:4px;
+  }
+
+  /* ---------- BROWSE / ACCORDION ---------- */
+  .browse{margin-top:70px;}
+  .browse-title{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-weight:500;
+    font-size:1.5rem;
+    text-align:center;
+    color:var(--royal);
+    margin:0 0 6px;
+  }
+  .browse-sub{
+    text-align:center;
+    color:var(--muted);
+    font-size:13.5px;
+    margin:0 0 32px;
+  }
+  .side-block{margin-bottom:30px;}
+  .side-heading{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .side-heading .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);}
+  .side-heading h3{
+    font-family:'Manrope',sans-serif;
+    font-size:11.5px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--royal);
+    margin:0;
+    font-weight:700;
+  }
+  details.table-group{
+    background:var(--offwhite);
+    border:1px solid var(--line);
+    border-radius:10px;
+    margin-bottom:8px;
+    overflow:hidden;
+  }
+  details.table-group summary{
+    list-style:none;
+    cursor:pointer;
+    padding:14px 18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:14px;
+    font-weight:600;
+    color:var(--ink);
+  }
+  details.table-group summary::-webkit-details-marker{display:none;}
+  details.table-group summary .count{
+    font-weight:500;
+    color:var(--muted);
+    font-size:12.5px;
+  }
+  details.table-group summary::after{
+    content:"+";
+    color:var(--royal);
+    font-size:16px;
+    margin-left:12px;
+  }
+  details.table-group[open] summary::after{content:"–";}
+  .guest-list{padding:0 18px 16px;}
+  .guest-row{
+    display:flex;
+    justify-content:space-between;
+    gap:14px;
+    padding:9px 0;
+    border-top:1px solid var(--line);
+    font-size:13.5px;
+  }
+  .guest-row:first-child{border-top:none;}
+  .guest-row .gname{color:var(--ink);}
+  .guest-row .gname em{color:var(--gold);font-style:normal;font-size:12px;}
+  .guest-row .gphone{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;}
+
+  /* ---------- FOOTER (image de fond) ---------- */
+  footer{
+    position:relative;
+    margin-top:80px;
+    padding:80px 24px 56px;
+    min-height:480px;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    text-align:center;
+    background-image:
+      linear-gradient(180deg, rgba(0,24,69,0.08) 0%, rgba(0,24,69,0.18) 55%, rgba(0,24,69,0.82) 100%),
+      url('DIV2.jpeg');
+    background-size:cover;
+    background-position:center 12%;
+    border-top:4px solid var(--gold);
+  }
+  footer .footer-title{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-weight:500;
+    font-size:1.6rem;
+    color:var(--white);
+    margin:0 0 10px;
+  }
+  footer .footer-text{
+    color:var(--gold-bright);
+    font-size:11.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .place-card{animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <p class="eyebrow">Bienvenue</p>
+    <h1>Trouvez votre table</h1>
+    <p class="subhead">Entrez votre nom ou votre numéro de téléphone pour retrouver instantanément votre place le jour du mariage.</p>
+  </div>
+
+  <div class="content">
+    <div class="ribbon-divider"><span class="line"></span><span class="diamond"></span><span class="line"></span></div>
+
+    <div class="search-panel">
+      <div class="search-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0047ab" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchInput" type="text" placeholder="Nom ou numéro de téléphone…" autocomplete="off">
+      </div>
+    </div>
+    <p class="hint">Astuce : un seul nom ou quelques chiffres suffisent</p>
+
+    <div id="results"><p class="empty-state">Votre carte de placement apparaîtra ici.</p></div>
+
+    <div class="browse">
+      <p class="browse-title">Parcourir la liste complète</p>
+      <p class="browse-sub">Classée par côté, puis par table</p>
+      <div id="browseContainer"></div>
+    </div>
+  </div>
+
+  <footer>
+    <p class="footer-title">Avec amour</p>
+  </footer>
+</div>
+
+<script>
+// ---------- DATA ----------
+// count = nombre de personnes réelles représentées par cette ligne
+// (ex: "et son épouse" = 2, "+ 3 enfants" = personne + 3 enfants, etc.)
+const GUESTS = [
+  // Côté MARIÉ — tous des entrées individuelles
+  {name:"Maman Ada Samia", phone:"07 87 83 51 51", side:"marie", table:1, count:1},
+  {name:"Marie Madeleine Sy", phone:"05 04 08 89", side:"marie", table:1, count:1},
+  {name:"Konan Darius", phone:"09 43 77 22", side:"marie", table:1, count:1},
+  {name:"Céline Kangah", phone:"01 48 31 60", side:"marie", table:1, count:1},
+  {name:"Mariame Etiébo", phone:"08 80 96 04", side:"marie", table:1, count:1},
+  {name:"Philomène Homawo", phone:"05 15 35 57", side:"marie", table:2, count:1},
+  {name:"Ernestine Homawo", phone:"05 15 30 05", side:"marie", table:2, count:1},
+  {name:"Marie Claire Kangah", phone:"05 66 46 18 14", side:"marie", table:2, count:1},
+  {name:"Aymeric Homawo", phone:"07 07 06 87 80", side:"marie", table:2, count:1},
+  {name:"Bryan Arouma", phone:"07 07 40 41 70", side:"marie", table:2, count:1},
+  {name:"Gustave Ekoué", phone:"05 06 56 46 34", side:"marie", table:3, count:1},
+  {name:"Mamigone", phone:"01 04 37 46", side:"marie", table:3, count:1},
+  {name:"Simplex Ekoué", phone:"05 91 41 11", side:"marie", table:3, count:1},
+  {name:"Michel Attamah", phone:"07 07 98 27 60", side:"marie", table:3, count:1},
+  {name:"Gertrude Kangah", phone:"09 33 64 58", side:"marie", table:3, count:1},
+  {name:"Théodore Kouassi", phone:"05 05 93 53", side:"marie", table:4, count:1},
+  {name:"Gertrude Kangah", phone:"07 84 20 24", side:"marie", table:4, count:1},
+  {name:"Samuel Attamah", phone:"09 33 64 58", side:"marie", table:4, count:1},
+  {name:"Mamourou", phone:"07 48 98 93 88", side:"marie", table:4, count:1},
+
+  // Côté MARIÉE
+  {name:"Maman Caroline", phone:"07 47 08 11 08", side:"mariee", table:1, count:1},
+  {name:"Issouf Coulibaly et son épouse", phone:"07 48 84 88 47", side:"mariee", table:1, count:2},
+  {name:"Coulibaly Yassina et son épouse", phone:"05 53 13 69", side:"mariee", table:1, count:2},
+  {name:"Damei Hortance et ses 2 épouses", phone:"01 19 79 71", side:"mariee", table:2, count:3},
+  {name:"Coulibaly Nawa + fils", phone:"07 03 40 56", side:"mariee", table:2, count:2},
+  {name:"Prisca et son époux", phone:"01 01 01 83 96", side:"mariee", table:3, count:2},
+  {name:"Yeo Christophe", phone:"08 36 51 89", side:"mariee", table:3, count:1},
+  {name:"Bougouni Herbé", phone:"07 47 48 87 44", side:"mariee", table:3, count:1},
+  {name:"Coulibaly Egnon et son épouse", phone:"07 16 06 21", side:"mariee", table:4, count:2},
+  {name:"Coulibaly Joël et son épouse", phone:"07 48 87 46 08", side:"mariee", table:4, count:2},
+  {name:"Ludovic et son épouse", phone:"07 87 38 26 54", side:"mariee", table:5, count:2},
+  {name:"Tissa et son épouse", phone:"07 77 82 94 61", side:"mariee", table:5, count:2},
+  {name:"Coulibaly Neissa", phone:"07 11 45 20 19", side:"mariee", table:5, count:1},
+  {name:"Coulibaly Soundjo", phone:"07 59 83 78 04", side:"mariee", table:6, count:1},
+  {name:"Coulibaly Pégnan (+ Madou et Kadi)", phone:"07 68 77 18 83", side:"mariee", table:6, count:3},
+  {name:"Koua Eda", phone:"01 05 71 52 58", side:"mariee", table:6, count:1},
+  {name:"Thacau Dann + promise et choupette", phone:"07 02 95 24 67", side:"mariee", table:7, count:3},
+  {name:"Eric", phone:"05 01 21 17 98", side:"mariee", table:7, count:1},
+  {name:"Seydoungoh", phone:"05 09 13 08 55", side:"mariee", table:7, count:1},
+  {name:"Soraya", phone:"07 77 99 55 92", side:"mariee", table:8, count:1},
+  {name:"Yann Coulibaly", phone:"07 10 30 03 35 / +33 6 51 11 63 34", side:"mariee", table:8, count:1},
+  {name:"Koua Lynn", phone:"+33 7 44 76 35 44", side:"mariee", table:8, count:1},
+  {name:"Monsieur et Mme Ziao", phone:"+212 669 76 52 43", side:"mariee", table:8, count:2},
+  {name:"Monsieur et Mme Eldt", phone:"07 07 13 82 11", side:"mariee", table:9, count:2},
+  {name:"Monsieur et Mme Essio", phone:"07 07 68 25 55", side:"mariee", table:9, count:2},
+  {name:"Maman Adje", phone:"07 59 07 73 65", side:"mariee", table:9, count:1},
+  {name:"Sabine", phone:"07 09 98 00 34", side:"mariee", table:10, count:1},
+  {name:"Invité(e)", phone:"07 08 99 71 81", side:"mariee", table:10, count:1},
+  {name:"Colombe", phone:"01 03 56 12 74", side:"mariee", table:10, count:1},
+  {name:"Roméo + sa femme", phone:"07 09 36 29 84", side:"mariee", table:10, count:2},
+  {name:"Maman Sœur Damei", phone:"07 07 01 68 71", side:"mariee", table:11, count:1},
+  {name:"Drissa Maître", phone:"07 53 06 15 99", side:"mariee", table:11, count:1},
+  {name:"Coulibaly Diidama", phone:"07 58 97 81 52", side:"mariee", table:11, count:1},
+  {name:"Pasteur Kokora et son épouse (+ 3 enfants)", phone:"01 01 04 02 22", side:"mariee", table:12, count:5},
+  {name:"Konotoum", phone:"07 68 34 68 15", side:"mariee", table:13, count:1},
+  {name:"Tata Armelle et sa fille", phone:"07 07 66 30 41", side:"mariee", table:13, count:2},
+  {name:"Satajo et son épouse", phone:"07 08 11 53 00", side:"mariee", table:13, count:2},
+  {name:"Maire Sinématalie et son épouse", phone:"07 47 70 94 10", side:"mariee", table:14, count:2},
+  {name:"Fofana Cheick", phone:"07 01 50 35 65", side:"mariee", table:14, count:1},
+  {name:"Fauta", phone:"07 03 53 03 26", side:"mariee", table:14, count:1},
+  {name:"Nico + mari", phone:"", side:"mariee", table:15, count:2},
+  {name:"Gislain + sa femme", phone:"", side:"mariee", table:15, count:2},
+  {name:"Wagole + mari et enfants", phone:"05 05 67 62 83 20", side:"mariee", table:16, count:4},
+  {name:"Maman de Soundjo (Sadia) + mari", phone:"07 59 46 85 42", side:"mariee", table:17, count:2},
+  {name:"Solange", phone:"07 09 58 23 85", side:"mariee", table:17, count:1},
+  {name:"Adaga", phone:"07 07 81 46 63", side:"mariee", table:17, count:1},
+  {name:"Père Soro", phone:"", side:"mariee", table:17, count:1},
+];
+
+const SIDE_LABEL = {marie:"Côté Marié", mariee:"Côté Mariée"};
+
+function normalize(str){
+  return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
+}
+function normalizePhone(str){
+  return str.replace(/[^\d]/g,"");
+}
+
+// ---------- SEARCH ----------
+const input = document.getElementById('searchInput');
+const results = document.getElementById('results');
+
+function renderResults(query){
+  const q = query.trim();
+  if(!q){
+    results.innerHTML = '<p class="empty-state">Votre carte de placement apparaîtra ici.</p>';
+    return;
+  }
+  const qName = normalize(q);
+  const qPhone = normalizePhone(q);
+
+  const matches = GUESTS.filter(g=>{
+    const nameHit = normalize(g.name).includes(qName);
+    const phoneHit = qPhone.length >= 2 && normalizePhone(g.phone).includes(qPhone);
+    return nameHit || phoneHit;
+  });
+
+  if(matches.length === 0){
+    results.innerHTML = `<div class="no-match"><strong>Aucun invité trouvé</strong>Vérifiez l'orthographe ou essayez avec le numéro de téléphone.</div>`;
+    return;
+  }
+
+  results.innerHTML = matches.slice(0,8).map(g=>`
+    <div class="place-card">
+      <div class="card-top">
+        <div>
+          <div class="card-side">${SIDE_LABEL[g.side]}</div>
+          <div class="card-name">${g.name}</div>
+          <div class="card-phone">${g.phone || 'Numéro non renseigné'}${g.count>1?` · ${g.count} personnes`:''}</div>
+        </div>
+        <div class="card-table">
+          <span class="n">${g.table}</span>
+          <span class="l">Table</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+input.addEventListener('input', e=>renderResults(e.target.value));
+
+// ---------- BROWSE ----------
+function buildBrowse(){
+  const container = document.getElementById('browseContainer');
+  ['marie','mariee'].forEach(side=>{
+    const guests = GUESTS.filter(g=>g.side===side);
+    const tables = [...new Set(guests.map(g=>g.table))].sort((a,b)=>a-b);
+
+    const block = document.createElement('div');
+    block.className = 'side-block';
+    block.innerHTML = `<div class="side-heading"><span class="dot"></span><h3>${SIDE_LABEL[side]}</h3></div>`;
+
+    tables.forEach(t=>{
+      const rows = guests.filter(g=>g.table===t);
+      const peopleCount = rows.reduce((sum,r)=>sum+r.count,0);
+      const det = document.createElement('details');
+      det.className = 'table-group';
+      det.innerHTML = `
+        <summary>Table ${t} <span class="count">${peopleCount} personne${peopleCount>1?'s':''} (${rows.length} ligne${rows.length>1?'s':''})</span></summary>
+        <div class="guest-list">
+          ${rows.map(r=>`<div class="guest-row"><span class="gname">${r.name}${r.count>1?` <em>(${r.count} pers.)</em>`:''}</span><span class="gphone">${r.phone || '—'}</span></div>`).join('')}
+        </div>
+      `;
+      block.appendChild(det);
+    });
+    container.appendChild(block);
+  });
+}
+buildBrowse();
+</script>
+</body>
+</html>
